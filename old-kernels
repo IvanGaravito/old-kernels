@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Created by: Ivan Garavito <ivangaravito@gmail.com>
+# License: MIT
+# Description: Show or purge old kernel packages
+
+function usage {
+  echo "USAGE:"
+  echo "  $0 <show|--show|-s|help|--help|-h|purge|--purge>"
+  echo "    show, --show, -s    Show kernel package list to be removed"
+  echo "    help, --help, -h    Print this usage text"
+  echo "    purge, --purge      Purge old kernel packages (needs sudo)"
+  echo
+  echo "Author: Ivan Garavito <ivangaravito@gmail.com>"
+}
+
+case "$1" in
+  "--purge"|"purge")
+    if [ "$(whoami)" != "root" ]; then
+      echo -e "Sorry, you are not root.\n"
+      usage
+      exit 1
+    fi
+    dpkg -l | grep -E 'linux-image-[0-9]+' | grep -Fv $(uname -r) | awk '$1 == "ii" { print $2 }' | xargs apt purge -y
+    if [ $? -ne 0 ]; then
+      exit $?
+    fi
+    apt autoremove -y
+    apt install --fix-broken
+    ;;
+  "-s"|"--show"|"show")
+    dpkg -l | grep -E 'linux-image-[0-9]+' | grep -Fv $(uname -r) | awk '$1 == "ii" { print $0 }'
+    ;;
+  "-h"|"--help"|"help"|*)
+    usage
+    ;;
+esac
