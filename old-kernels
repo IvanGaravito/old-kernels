@@ -21,7 +21,7 @@ case "$1" in
       usage
       exit 1
     fi
-    dpkg -l | grep -E 'linux-image-[0-9]+' | grep -Fv $(uname -r) | awk '$1 == "ii" { print $2 }' | xargs apt purge -y
+    dpkg -l | grep -E 'linux-image-[0-9]+' | grep -Fv $(uname -r) | awk '$1 == "ii" { print $2 }' | xargs apt-get purge -y
     if [ $? -ne 0 ]; then
       exit $?
     fi
